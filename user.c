@@ -6,41 +6,35 @@
 #include <pthread.h>
 #include <signal.h>
 #include <regex.h>
-#include <ifaddrs.h>
 
-#include "user.h"
-#include "colors.h"
-#include "stringFunc.c"
+#include "lib/user.h"
+#include "lib/colors.h"
+#include "lib/stringFunc.h"
+#include "lib/fileUser.h"
+#include "lib/commandUser.h"
 
 #define MAX 100
-#define SIZE 1024
-
-int dS;
-int dSFileSend;
 
 regex_t regex;
-pthread_t fileThread;
-
 struct sockaddr_in aS;
 
+int dS;
 char *ipAddress;
 int portSendingFile;
 
 // We want a thread that manages the shipment and another who manages the receipt
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-
-  if (argc != 3)
-  {
-    perror("Usage : ./exe IP port");
+  // args check
+  if (argc != 3){
+    redErrorMessage("Usage : ./exe IP port");
+  }
+  if (atoi(argv[2]) <= 1024){
+    redErrorMessage("Bad port: must be greater than 1024");
   }
 
-  if (atoi(argv[2]) <= 1024)
-  {
-    perror("Bad port: must be greater than 1024");
-  }
-
-  printf("Start program\n");
+  greenMessage("Start program\n");
 
   int enable = 1;
 
@@ -53,20 +47,25 @@ int main(int argc, char *argv[])
   {
     redErrorMessage("setsockopt(SO_REUSEADDR) failed");
   }
-  printf("Socket for message created\n");
 
-  // socket for sending file
+  // info for sending file socket
   ipAddress = argv[1];
   portSendingFile = atoi(argv[2]) + 1;
+
+  // fill info for socket dS
   struct sockaddr_in aS;
   aS.sin_family = AF_INET;
   inet_pton(AF_INET, ipAddress, &(aS.sin_addr));
   aS.sin_port = htons(atoi(argv[2]));
   socklen_t lgA = sizeof(struct sockaddr_in);
+
+  // connection to socket dS
   connect(dS, (struct sockaddr *)&aS, lgA);
 
-  signal(SIGINT, quitForUser);
+  // check the ^C
+  signal(SIGINT, signalHandler);
 
+  // Checking username
   int check;
   do
   {
@@ -87,17 +86,22 @@ int main(int argc, char *argv[])
     {
       redErrorMessage("An error appeared during connection to the server...\n");
     }
-    printf("%s\n", isConnected);
 
     check = strcmp(isConnected, "Connected !");
 
     if (check != 0)
     {
+      printf("%s\n", isConnected);
       char *username = (char *)malloc(sizeof(char) * 50);
       fgets(username, 50, stdin);
       username[strcspn(username, "\n")] = 0;
-      printf("My username : %s \n", username);
+      printf("\nMy username : ");
+      blueMessage(username);
+      printf("\n\n");
       sendSpecificMessage(dS, username);
+    } else {
+      greenMessage(isConnected);
+      printf("\n\n");
     }
   } while (check != 0);
 
@@ -132,12 +136,12 @@ void sendMessage(int socket)
     printf("\n");
     u_long size = strlen(m) + 1;
 
-    resRegexSFile = regcomp(&regex, "^\/sfile[:print:]*", 0);
+    resRegexSFile = regcomp(&regex, "^/sfile[:print:]*", 0);
     resRegexSFile = regexec(&regex, m, 0, NULL, 0);
 
     if (strcmp(m, "/man") == 0)
     {
-      displayManuel();
+      displayManual();
     }
     else if (resRegexSFile == 0)
     {
@@ -145,7 +149,7 @@ void sendMessage(int socket)
       sendFileStruct data;
       data.socketServer = socket;
       data.cmd = m;
-      connectSocketFile(&data);
+      connectSocketFile(&data, portSendingFile, ipAddress);
     }
     else
     {
@@ -181,17 +185,19 @@ void receiveMessage(int socket)
       redErrorMessage("Error message received\n");
     }
 
+    // check if the user need to quit the chat server
     if (strcmp(messageReceive, "/quit") == 0)
     {
       printf("/quit server received \n");
-      quitForUser(0);
+      quitForUser(dS);
     }
 
-    int resRegexMp;
-    resRegexMp = regcomp(&regex, "^(mp)[:print:]*", 0);
-    resRegexMp = regexec(&regex, messageReceive, 0, NULL, 0);
+    // check if the message received is a pm
+    int resRegexPm;
+    resRegexPm = regcomp(&regex, "^(pm)[:print:]*", 0);
+    resRegexPm = regexec(&regex, messageReceive, 0, NULL, 0);
 
-    if (resRegexMp == 0)
+    if (resRegexPm == 0)
     {
       purpleMessage(messageReceive);
     }
@@ -203,132 +209,6 @@ void receiveMessage(int socket)
     printf("Enter your message (100 max) : \n");
   }
   free(m);
-}
-
-void  connectSocketFile(sendFileStruct* data)
-{
-  int enable = 1;
-  dSFileSend = socket(PF_INET, SOCK_STREAM, 0);
-  if (dSFileSend < 0)
-  {
-    redErrorMessage("ERROR opening socket for sending file");
-  }
-  if (setsockopt(dSFileSend, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-  {
-    redErrorMessage("setsockopt(SO_REUSEADDR) failed");
-  }
-
-  // value for connection to the socket
-  struct sockaddr_in aSfile;
-  aSfile.sin_family = AF_INET;
-  inet_pton(AF_INET, ipAddress, &(aSfile.sin_addr));
-  aSfile.sin_port = htons(portSendingFile);
-  socklen_t lgFile = sizeof(struct sockaddr_in);
-
-  int resCoFile = connect(dSFileSend, (struct sockaddr *)&aSfile, lgFile);  // connection to the socket
-  if (resCoFile == 0) 
-  {
-    blueMessage("Begin of the file transfer...\n");
-    pthread_create(&fileThread, NULL, sendFile, data);
-    pthread_join(fileThread, 0);
-    shutdown(dSFileSend, 2);
-  }
-  else
-  {
-    redMessage("Error connexion server for sending file ! \n");
-  }
-}
-
-void sendFile(void *sendFileData)
-{
-  FILE *fp;
-  sendFileStruct *data = (sendFileStruct *)sendFileData;
-  char **mess = str_split(data->cmd, 1);
-  
-  size_t filenameSize = strlen(mess[1]);
-  
-  // get file path
-  char *folder = "userStorage/";
-  char *path = (char *)malloc((strlen(folder) + filenameSize) * sizeof(char));
-  strcat(path, folder);
-  strcat(path, mess[1]);
-  
-  // get the file size
-  fp = fopen(path, "rb");
-  if (fp == NULL)
-  {
-    redMessage("The file doesn't exist !\n");
-  } 
-  else
-  {
-    fseek(fp, 0, SEEK_END);      // Jump to the end of the file
-    long fileSize = ftell(fp);   // Get the current byte offset in the file
-    rewind(fp);                  // Jump back to the beginning of the file
-    fclose(fp);
-    
-    // ------------------------ Send fileStruct and filename --------------------------
-
-    char *filename = mess[1];
-    // fill the struct
-    fileStruct *file = (fileStruct*)malloc(sizeof(fileStruct));
-    file->filenameSize = filenameSize;
-    file->fileSize = fileSize;
-
-    int structSize = sizeof(*file);
-    if (send(dSFileSend, &structSize, sizeof(int), 0) == -1) // send the size of the struct
-    {
-      redErrorMessage("Error in sending struct size\n");
-    }
-    if (send(dSFileSend, file, structSize, 0) == -1) // send the struct
-    {
-      redErrorMessage("Error in sending struct size\n");
-    }
-    if (send(dSFileSend, filename, file->filenameSize, 0) == -1) // send the filename
-    {
-      redErrorMessage("Error in sending filename\n");
-    }
-    // --------------------------------------------------------------------------------
-    fileTransfer(dSFileSend, file, filename);
-  }
-
-}
-
-void fileTransfer(int socket, fileStruct *file, char* name)
-{
-  FILE *fp;
-  char buffer[SIZE];
-  fileStruct *fileData = file;
-
-  char *folder = "userStorage/";
-  char *filename = name;
-  long fileSize = fileData->fileSize;
-  char *path = (char *)malloc((strlen(folder) + fileData->filenameSize) * sizeof(char));
-  strcat(path, folder);
-  strcat(path, filename);
-  fp = fopen(path, "rb");   // Open the file in binary mode
-
-  int count;
-  for (int i = 0; i < fileSize; i += SIZE) // send file block by block of SIZE byts until there are no more byts to send
-  {
-    if (i + SIZE < fileSize) // Calculate the size of the block to send
-    {
-      count = SIZE;
-    }
-    else
-    {
-      count = fileSize - i;
-    }
-
-    fread(buffer, count, 1, fp);                       // read the file
-    if (send(socket, buffer, sizeof(buffer), 0) == -1) // send the block of bytes to the server
-    {
-      perror("Error in sending file.");
-      exit(1);
-    }
-    bzero(buffer, SIZE); // Reset the buffer
-  }
-  fclose(fp); // Close the file
-  greenMessage("File send succesfully\n");
 }
 
 void sendSpecificMessage(int client, char *message)
@@ -346,38 +226,7 @@ void sendSpecificMessage(int client, char *message)
   }
 }
 
-void displayManuel()
+void signalHandler(int n)
 {
-  FILE *manual;
-  char c;
-  manual = fopen("command.txt", "rt");
-  while ((c = fgetc(manual)) != EOF)
-  {
-    printf("%c", c);
-  }
-  fclose(manual);
-  printf("\n");
+  quitForUser(dS);
 }
-
-void quitForUser(int n)
-{
-  char *m = "/quit";
-  u_long size = strlen(m) + 1;
-
-  // Send message size
-  if (send(dS, &size, sizeof(u_long), 0) == -1)
-  {
-    perror("Error sending size\n");
-    exit(0);
-  }
-
-  // Send message
-  if (send(dS, m, size, 0) == -1)
-  {
-    perror("Error sending message\n");
-    exit(0);
-  }
-  exit(0);
-}
-
-
