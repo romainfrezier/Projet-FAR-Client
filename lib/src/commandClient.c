@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "colors.h"
-#include "commandUser.h"
+#include "../headers/colors.h"
+#include "../headers/commandClient.h"
 
 // Disconnects the user
 void quitForUser(int socket)

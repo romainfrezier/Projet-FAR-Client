@@ -7,11 +7,12 @@
 #include <signal.h>
 #include <regex.h>
 
-#include "lib/user.h"
-#include "lib/colors.h"
-#include "lib/stringFunc.h"
-#include "lib/fileUser.h"
-#include "lib/commandUser.h"
+#include "lib/headers/client.h"
+#include "lib/headers/colors.h"
+#include "lib/headers/stringFunc.h"
+#include "lib/headers/fileClient.h"
+#include "lib/headers/commandClient.h"
+#include "lib/headers/list.h"
 
 #define MAX 100
 
@@ -125,9 +126,12 @@ void sendMessage(int socket)
   char *m = (char *)malloc(MAX * sizeof(char));
 
   int resRegexSFile;
+  int resRegexGFile;
+  int resRegexSelectFile;
+
   while (strcmp(m, "/quit") != 0)
   {
-    // User input
+    // Client input
     printf("Enter your message (100 max) : \n");
     fgets(m, 100, stdin);
     m[strcspn(m, "\n")] = 0;
@@ -136,8 +140,11 @@ void sendMessage(int socket)
     printf("\n");
     u_long size = strlen(m) + 1;
 
-    resRegexSFile = regcomp(&regex, "^/sfile[:print:]*", 0);
+    resRegexSFile = regcomp(&regex, "^/sfile", 0);
     resRegexSFile = regexec(&regex, m, 0, NULL, 0);
+
+    resRegexGFile = regcomp(&regex, "^/gfile[:print:]*", 0);
+    resRegexGFile = regexec(&regex, m, 0, NULL, 0);
 
     if (strcmp(m, "/man") == 0)
     {
@@ -145,11 +152,49 @@ void sendMessage(int socket)
     }
     else if (resRegexSFile == 0)
     {
+
+      List *list = createList();
+      fillListFile("./userStorage", list);
+      displayFileList(list);
+      char *selected = (char*)malloc(12* sizeof(char));
+      int entryAccepted = 1;
+      int id;
+      do
+      {
+        blueMessage("\nEnter the number of the file you want to send : ");
+        fgets(selected, 12, stdin);
+
+        resRegexSelectFile = regcomp(&regex, "^[:digit:]*", 0);
+        resRegexSelectFile = regexec(&regex, selected, 0, NULL, 0);
+        if (resRegexSelectFile == 0)
+        {
+          id = atoi(selected);
+          if (fileIdInList(list, id) == 0)
+          {
+            entryAccepted = 0;
+          } else {
+            redMessage("\nPlease enter a valid number\n");
+          }
+        } else {
+          redMessage("\nPlease enter a number\n");
+        }
+      } while (entryAccepted != 0);
+
+      char *filename = getFilenameById(list, id);
+
       // send socket data to the server
       sendFileStruct data;
       data.socketServer = socket;
+      data.filename = filename;
+      connectSocketFileSend(&data, portSendingFile, ipAddress);
+    }
+    else if (resRegexGFile == 0)
+    {
+      // send socket data to the server
+      getFileStruct data;
+      data.socketServer = socket;
       data.cmd = m;
-      connectSocketFile(&data, portSendingFile, ipAddress);
+      connectSocketFileGet(&data, portSendingFile + 1, ipAddress);
     }
     else
     {
@@ -185,7 +230,7 @@ void receiveMessage(int socket)
       redErrorMessage("Error message received\n");
     }
 
-    // check if the user need to quit the chat server
+    // check if the client need to quit the chat server
     if (strcmp(messageReceive, "/quit") == 0)
     {
       printf("/quit server received \n");

@@ -3,22 +3,26 @@
     |    List of commands     |
     * ----------------------- *
 
-    • /quit :               allows you to exit the chat server
+    • /quit :               Allows you to exit the chat server
 
-    • /pm pseudo Message:   sends the message to the user with 
+    • /pm pseudo Message:   Sends the message to the user with 
                             pseudo "pseudo" in private discussion
 
-    • /man:                 displays the command manual
+    • /man:                 Displays the command manual
 
-    • /admin adminKey :     give you all the permission if the key 
+    • /admin adminKey :     Give you all the permission if the key 
                             is valid
 
-    • /kick pseudo :        kick the user from the server
+    • /kick pseudo :        Kick the user from the server
 
-    • /users :              give you all the users currently 
+    • /users :              Give you all the users currently 
                             connected
 
-    • /sfile fileName :     Send a file to the server
+    • /sfile :              Display a list of file. You can choose 
+                            which one you want to send
 
-    • /files :              display all the files stored on the 
+    • /files :              Display all the files stored on the 
+                            server
+
+    • /gfile filename :     Download the file "filename" from the   
                             server

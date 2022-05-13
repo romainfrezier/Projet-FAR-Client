@@ -1,23 +1,6 @@
-#include "stringFunc.h"
+#include "../headers/stringFunc.h"
 
-// char** str_split(char *msg)
-// {
-//     printf("Message : %s\n", msg);
-//     int i = 0;
-//     char* p = strtok(msg, " ");
-//     char** array =(char**)malloc(3*sizeof(char*));
-//     array[0] = (char*)malloc(strlen(p) + 1);
-//     strcpy(array[0], p);
-//     p = strtok(NULL, " ");
-//     array[1] = (char*)malloc(strlen(p) + 1);
-//     strcpy(array[1], p);
-//     p = strtok(NULL, "\0");
-//     array[2] = (char*)malloc(strlen(p) + 1);
-//     strcpy(array[2], p);
-//     return array;
-// }
-
-//Amélioration de la commande split, avec boucle et argument n pour généralisation
+// Split command, with loop and argument n for generalization
 
 char** str_split(char *msg, int n)
 {
@@ -42,15 +25,15 @@ char** str_split(char *msg, int n)
 }
 
 int verifCommand(char* cmd, int nbSpace){
-    int spaceFounded = 0;
+    int spaceFound = 0;
     for(int i = 0; i <= strlen(cmd); i++)
   	{
         if(cmd[i] == ' ')  
         {
-            spaceFounded += 1;
+            spaceFound += 1;
         }
 	}
-    if (spaceFounded >= nbSpace){
+    if (spaceFound >= nbSpace){
         return 1;
     }
     else {

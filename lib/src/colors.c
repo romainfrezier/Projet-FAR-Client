@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "colors.h"
+#include "../headers/colors.h"
 
 // Functions to print in color
 // Green for transmitting message
