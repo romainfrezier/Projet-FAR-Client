@@ -154,7 +154,7 @@ void sendMessage(int socket)
     {
 
       List *list = createList();
-      fillListFile("./userStorage", list);
+      fillListFile("userStorage/", list);
       displayFileList(list);
       char *selected = (char*)malloc(12* sizeof(char));
       int entryAccepted = 1;
@@ -181,6 +181,7 @@ void sendMessage(int socket)
       } while (entryAccepted != 0);
 
       char *filename = getFilenameById(list, id);
+      free(list);
 
       // send socket data to the server
       sendFileStruct data;

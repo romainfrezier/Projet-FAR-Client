@@ -7,6 +7,7 @@ struct Link
 {
     int id;
     char *filename;
+    int fileSize;
     Link *next;
 };
 
@@ -15,11 +16,12 @@ typedef struct List List;
 struct List
 {
     Link *head;
+    Link *last;
 };
 
 List *createList();
 int listIsEmpty(List *list);
-void addFirst(List *list, Link *fileList);
+void addLast(List *list, Link *fileList);
 Link *next(Link *link);
 void delFirst(List *list);
 void delVal(List *list, Link *fileList);

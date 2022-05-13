@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #include "../headers/list.h"
 #include "../headers/colors.h"
@@ -12,6 +13,7 @@ List *createList()
 {
     List *list = (List *)malloc(sizeof(List));
     list->head = NULL;
+    list->last = NULL;
     return list;
 }
 
@@ -27,7 +29,7 @@ int listIsEmpty(List *list)
     }
 }
 
-void addFirst(List *list, Link* fileList)
+void addLast(List *list, Link* fileList)
 {
     Link *link = (Link *)malloc(sizeof(Link));
     link->id = fileList->id;
@@ -35,14 +37,15 @@ void addFirst(List *list, Link* fileList)
     if (list->head == NULL)
     {
         list->head = link;
+        list->last = link;
         link->next = NULL;
     }
     else
     {
-        link->next = list->head;
-        list->head = link;
+        list->last->next = link;
+        list->last = link;
+        list->last->next = NULL;
     }
-    
 }
 
 Link *next(Link *link)
@@ -184,7 +187,7 @@ void displayFileList(List *list)
     printf("\n");
     if (listIsEmpty(list) == 1)
     {
-        blueMessage("List of your files : \n\n");
+        blueMessage("\nList of your files : \n\n");
         Link *current = list->head;
         while (current != NULL)
         {
@@ -203,6 +206,7 @@ void fillListFile(char *folder, List* list)
     DIR *d;
     struct dirent *dir;
     Link *link = malloc(sizeof(link));
+    
     d = opendir(folder);
     if (d)
     {
@@ -214,7 +218,8 @@ void fillListFile(char *folder, List* list)
                 link->filename = dir->d_name;
                 link->id = i;
                 i++;
-                addFirst(list,link);
+                addLast(list,link);
+
             }
         }
         closedir(d);
