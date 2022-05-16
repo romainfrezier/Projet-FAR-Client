@@ -78,13 +78,12 @@ void prepareTransfer(void *sendFileData) // prepare the sending of the file
         rewind(fp);                // Jump back to the beginning of the file
         fclose(fp);
 
-        // ------------------------ Send fileStruct and filename --------------------------
-
         // fill the struct
         fileStruct *file = (fileStruct *)malloc(sizeof(fileStruct));
         file->filenameSize = filenameSize;
         file->fileSize = fileSize;
 
+        // Send fileStruct and filename
         int structSize = sizeof(*file);
         if (send(data->socketServer, &structSize, sizeof(int), 0) == -1) // send the size of the struct
         {
@@ -98,7 +97,6 @@ void prepareTransfer(void *sendFileData) // prepare the sending of the file
         {
             redErrorMessage("Error in sending filename\n");
         }
-        // --------------------------------------------------------------------------------
         fileTransfer(data->socketServer, file, filename);
     }
 }
@@ -185,9 +183,7 @@ void prepareGetFile(void *data)
 
     sendSpecificMessage(dataGetFile->socketServer, mess[1]);
 
-    // ------------- Recevoir la taille d'une struct, une struct, puis filename -------------
     // Size reception
-
     int size;
     if (recv(dataGetFile->socketServer, &size, sizeof(int), 0) == -1)
     {
@@ -200,8 +196,6 @@ void prepareGetFile(void *data)
     {
         redErrorMessage("Error struct received\n");
     }
-
-    // ---------------------------------------------------------------------------------------
 
     receiveFile(fileInfo, dataGetFile->socketServer, mess[1]);
 }

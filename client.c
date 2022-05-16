@@ -121,14 +121,10 @@ main(int argc, char *argv[])
   printf("End program\n");
 }
 
+// Sending a message to the server
 void sendMessage(int socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
-
-  int resRegexSFile;
-  int resRegexGFile;
-  int resRegexSelectFile;
-  int resRegexQuitSelectFile;
 
   while (strcmp(m, "/quit") != 0)
   {
@@ -141,87 +137,15 @@ void sendMessage(int socket)
     printf("\n");
     u_long size = strlen(m) + 1;
 
-    resRegexSFile = regcomp(&regex, "^/sfile", 0);
-    resRegexSFile = regexec(&regex, m, 0, NULL, 0);
-
-    resRegexGFile = regcomp(&regex, "^/gfile[:print:]*", 0);
-    resRegexGFile = regexec(&regex, m, 0, NULL, 0);
-
-    if (strcmp(m, "/man") == 0)
-    {
-      displayManual();
-    }
-    else if (resRegexSFile == 0)
-    {
-
-      List *list = createList();
-      fillListFile("userStorage/", list);
-      displayFileList(list);
-      char *selected = (char*)malloc(12* sizeof(char));
-      int entryAccepted = 1;
-      int quitMenu = 0;
-      int id;
-      do
-      {
-        blueMessage("\nEnter the number of the file you want to send : ");
-        fgets(selected, 12, stdin);
-
-        resRegexSelectFile = regcomp(&regex, "[0-9]", 0);
-        resRegexSelectFile = regexec(&regex, selected, 0, NULL, 0);
-
-        resRegexQuitSelectFile = regcomp(&regex, "q", 0);
-        resRegexQuitSelectFile = regexec(&regex, selected, 0, NULL, 0);
-
-        if (resRegexSelectFile == 0)
-        {
-          id = atoi(selected);
-          if (fileIdInList(list, id) == 0)
-          {
-            entryAccepted = 0;
-          } else {
-            redMessage("\nPlease enter a valid number\n");
-          }
-        }
-        else if (resRegexQuitSelectFile == 0)
-        {
-          entryAccepted = 0;
-          quitMenu = -1;
-        }
-        else {
-          redMessage("\nPlease enter a number\n");
-        }
-      } while (entryAccepted != 0);
-      if (quitMenu == 0)
-      {
-        char *filename = getFilenameById(list, id);
-        free(list);
-
-        // send socket data to the server
-        sendFileStruct data;
-        data.socketServer = socket;
-        data.filename = filename;
-        connectSocketFileSend(&data, portSendingFile, ipAddress);
-      }
-      
-    }
-    else if (resRegexGFile == 0)
-    {
-      // send socket data to the server
-      getFileStruct data;
-      data.socketServer = socket;
-      data.cmd = m;
-      connectSocketFileGet(&data, portSendingFile + 1, ipAddress);
-    }
-    else
-    {
-      sendSpecificMessage(socket, m);
-    }
+    // check user given command
+    checkCommand(m, ipAddress, portSendingFile, socket);
   }
   shutdown(socket, 2);
   free(m);
   exit(0);
 }
 
+// Reception of a server message
 void receiveMessage(int socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
@@ -272,6 +196,7 @@ void receiveMessage(int socket)
   free(m);
 }
 
+// Sending a specific message to the server
 void sendSpecificMessage(int client, char *message)
 {
   u_long sizeMessage = strlen(message) + 1;
@@ -287,6 +212,7 @@ void sendSpecificMessage(int client, char *message)
   }
 }
 
+// Handler for ^C
 void signalHandler(int n)
 {
   quitForUser(dS);
