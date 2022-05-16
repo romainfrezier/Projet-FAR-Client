@@ -19,7 +19,8 @@
                             connected
 
     • /sfile :              Display a list of file. You can choose 
-                            which one you want to send
+                            which one you want to send. Enter q for
+                            leave the selection menu
 
     • /files :              Display all the files stored on the 
                             server

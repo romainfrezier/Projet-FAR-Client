@@ -128,6 +128,7 @@ void sendMessage(int socket)
   int resRegexSFile;
   int resRegexGFile;
   int resRegexSelectFile;
+  int resRegexQuitSelectFile;
 
   while (strcmp(m, "/quit") != 0)
   {
@@ -158,14 +159,19 @@ void sendMessage(int socket)
       displayFileList(list);
       char *selected = (char*)malloc(12* sizeof(char));
       int entryAccepted = 1;
+      int quitMenu = 0;
       int id;
       do
       {
         blueMessage("\nEnter the number of the file you want to send : ");
         fgets(selected, 12, stdin);
 
-        resRegexSelectFile = regcomp(&regex, "^[:digit:]*", 0);
+        resRegexSelectFile = regcomp(&regex, "[0-9]", 0);
         resRegexSelectFile = regexec(&regex, selected, 0, NULL, 0);
+
+        resRegexQuitSelectFile = regcomp(&regex, "q", 0);
+        resRegexQuitSelectFile = regexec(&regex, selected, 0, NULL, 0);
+
         if (resRegexSelectFile == 0)
         {
           id = atoi(selected);
@@ -175,19 +181,28 @@ void sendMessage(int socket)
           } else {
             redMessage("\nPlease enter a valid number\n");
           }
-        } else {
+        }
+        else if (resRegexQuitSelectFile == 0)
+        {
+          entryAccepted = 0;
+          quitMenu = -1;
+        }
+        else {
           redMessage("\nPlease enter a number\n");
         }
       } while (entryAccepted != 0);
+      if (quitMenu == 0)
+      {
+        char *filename = getFilenameById(list, id);
+        free(list);
 
-      char *filename = getFilenameById(list, id);
-      free(list);
-
-      // send socket data to the server
-      sendFileStruct data;
-      data.socketServer = socket;
-      data.filename = filename;
-      connectSocketFileSend(&data, portSendingFile, ipAddress);
+        // send socket data to the server
+        sendFileStruct data;
+        data.socketServer = socket;
+        data.filename = filename;
+        connectSocketFileSend(&data, portSendingFile, ipAddress);
+      }
+      
     }
     else if (resRegexGFile == 0)
     {

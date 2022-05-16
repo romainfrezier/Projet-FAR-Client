@@ -191,7 +191,9 @@ void displayFileList(List *list)
         Link *current = list->head;
         while (current != NULL)
         {
+            printf("\033[0;34m"); // colors for complex string
             printf("    %d. %s\n", current->id, current->filename);
+            reset();
             current = current->next;
         }
     }
