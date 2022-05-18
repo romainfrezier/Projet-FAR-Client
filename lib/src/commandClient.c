@@ -9,6 +9,22 @@
 #include "../headers/list.h"
 #include "../headers/fileClient.h"
 
+// Sending a specific message to the server
+void sendSpecificMessage(int client, char *message)
+{
+    u_long sizeMessage = strlen(message) + 1;
+    // Send connection message size
+    if (send(client, &sizeMessage, sizeof(u_long), 0) == -1)
+    {
+        redErrorMessage("Error sending size\n");
+    }
+    // Send connection message
+    if (send(client, message, sizeMessage, 0) == -1)
+    {
+        redErrorMessage("Error sending connection message\n");
+    }
+}
+
 // Disconnects the user
 void quitForUser(int socket)
 {

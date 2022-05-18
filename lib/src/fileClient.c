@@ -8,7 +8,7 @@
 #include "../headers/fileClient.h"
 #include "../headers/colors.h"
 #include "../headers/stringFunc.h"
-#include "../headers/client.h"
+#include "../headers/commandClient.h"
 
 #define SIZE 1024 // define the size of the block of bytes that are sent to the server
 
