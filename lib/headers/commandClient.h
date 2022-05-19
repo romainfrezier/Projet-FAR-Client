@@ -4,6 +4,6 @@
 void sendSpecificMessage(int client, char *message);                        // Sending a specific message to the server
 void quitForUser(int socket);                                               // Disconnects the user
 void displayManual();                                                       // Display the command manual
-void checkCommand(char *m, int ipAddress, int portSendingFile, int socket); // check user given command
+void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket); // check user given command
 
 #endif // COMMANDCLIENT_H_

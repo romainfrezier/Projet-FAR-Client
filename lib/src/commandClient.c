@@ -61,7 +61,7 @@ void displayManual()
 }
 
 // check user given command
-void checkCommand(char *m, int ipAddress, int portSendingFile, int socket)
+void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
 {
     int resRegexSFile;
     int resRegexGFile;
