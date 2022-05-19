@@ -1,0 +1,33 @@
+* --------------------------------------------------------------------- *
+|                     * ----------------------- *                       |
+|                     |    List of commands     |                       |
+|                     * ----------------------- *                       |
+|                                                                       |
+|    ---------------------------------------------------------------    |
+|    • /quit :               Allows you to exit the chat server         |
+|    ---------------------------------------------------------------    |
+|    • /pm pseudo Message:   Sends the message to the user with         |
+|                            pseudo "pseudo" in private discussion      |
+|    ---------------------------------------------------------------    |
+|    • /man:                 Displays the command manual                |
+|    ---------------------------------------------------------------    |
+|    • /admin adminKey :     Give you all the permission if the key     |
+|                            is valid                                   |
+|    ---------------------------------------------------------------    |
+|    • /kick pseudo :        Kick the user from the server              |
+|    ---------------------------------------------------------------    |
+|    • /users :              Give you all the users currently           |
+|                            connected                                  |
+|    ---------------------------------------------------------------    |
+|    • /sfile :              Display a list of file. You can choose     |
+|                            which one you want to send. Enter q for    |
+|                            leave the selection menu                   |
+|    ---------------------------------------------------------------    |
+|    • /files :              Display all the files stored on the        |
+|                            server                                     |
+|    ---------------------------------------------------------------    |
+|    • /gfile filename :     Download the file "filename" from the      |
+|                            server                                     |
+|    ---------------------------------------------------------------    |
+|    • /rename username :    You can change your username               |
+* --------------------------------------------------------------------- *
