@@ -14,7 +14,8 @@
 |    • /admin adminKey :     Give you all the permission if the key     |
 |                            is valid                                   |
 |    ---------------------------------------------------------------    |
-|    • /kick pseudo :        Kick the user from the server              |
+|    • /kick pseudo :        Kick the user from the server (admin       |
+|                            only)                                      |
 |    ---------------------------------------------------------------    |
 |    • /users :              Give you all the users currently           |
 |                            connected                                  |
@@ -30,4 +31,11 @@
 |                            server                                     |
 |    ---------------------------------------------------------------    |
 |    • /rename username :    You can change your username               |
+|    ---------------------------------------------------------------    |
+|    • /channel name :       You can create a new channel with the      |
+|                            the name in arguments (admin only)         |
+|    ---------------------------------------------------------------    |
+|    • /lchannel :           List all the channel of the server         |
+|    ---------------------------------------------------------------    |
+|    • /jchannel name :      Join the channel                           |
 * --------------------------------------------------------------------- *
