@@ -17,55 +17,14 @@ pthread_t fileGetThread;
 
 void connectSocketFileSend(sendFileStruct *data, int port, char *ip) // connect socket for send file
 {
-    int enable = 1;
-    int dSFileSend = socket(PF_INET, SOCK_STREAM, 0);
-    if (dSFileSend < 0)
-    {
-        redErrorMessage("ERROR opening socket for sending file");
-    }
-    if (setsockopt(dSFileSend, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-    {
-        redErrorMessage("setsockopt(SO_REUSEADDR) failed");
-    }
-    sendFileStruct *dataStruct = (sendFileStruct *)data;
-    dataStruct->socketServer = dSFileSend;
-
-    // value for connection to the socket
-    struct sockaddr_in aSfile;
-    aSfile.sin_family = AF_INET;
-    inet_pton(AF_INET, ip, &(aSfile.sin_addr));
-    aSfile.sin_port = htons(port);
-    socklen_t lgFile = sizeof(struct sockaddr_in);
-
-    int resCoFile = connect(dSFileSend, (struct sockaddr *)&aSfile, lgFile); // connection to the socket
-    if (resCoFile == 0)
-    {
-        blueMessage("Begin of the file transfer...\n");
-        pthread_create(&fileSendThread, NULL, prepareTransfer, dataStruct);
-        pthread_join(fileSendThread, 0);
-        shutdown(dSFileSend, 2);
-    }
-    else
-    {
-        redMessage("Error connexion server for sending file ! \n");
-    }
-}
-
-void prepareTransfer(void *sendFileData) // prepare the sending of the file
-{
     FILE *fp;
-    sendFileStruct *data = (sendFileStruct *)sendFileData;
-    char *filename = data->filename;
-
-    size_t filenameSize = strlen(filename);
+    sendFileStruct *dataStruct = (sendFileStruct *)data;
 
     // get file path
     char *folder = "userStorage/";
-    char *path = (char *)malloc((strlen(folder) + filenameSize) * sizeof(char));
+    char *path = (char *)malloc((strlen(folder) + strlen(dataStruct->filename)) * sizeof(char));
     strcat(path, folder);
-    strcat(path, filename);
-
-    // get the file size
+    strcat(path, dataStruct->filename);
     fp = fopen(path, "rb");
     if (fp == NULL)
     {
@@ -77,11 +36,69 @@ void prepareTransfer(void *sendFileData) // prepare the sending of the file
         long fileSize = ftell(fp); // Get the current byte offset in the file
         rewind(fp);                // Jump back to the beginning of the file
         fclose(fp);
+    
+        if (fileSize > 100000000)
+        {
+            redMessage("You cannot send a file over 100MB\n");
+        }
+        else
+        {
+            int enable = 1;
+            int dSFileSend = socket(PF_INET, SOCK_STREAM, 0);
+            if (dSFileSend < 0)
+            {
+                redErrorMessage("ERROR opening socket for sending file");
+            }
+            if (setsockopt(dSFileSend, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+            {
+                redErrorMessage("setsockopt(SO_REUSEADDR) failed");
+            }
+            dataStruct->socketServer = dSFileSend;
+            dataStruct->path = path;
+            dataStruct->fileSize = fileSize;
 
+            // value for connection to the socket
+            struct sockaddr_in aSfile;
+            aSfile.sin_family = AF_INET;
+            inet_pton(AF_INET, ip, &(aSfile.sin_addr));
+            aSfile.sin_port = htons(port);
+            socklen_t lgFile = sizeof(struct sockaddr_in);
+
+            int resCoFile = connect(dSFileSend, (struct sockaddr *)&aSfile, lgFile); // connection to the socket
+            if (resCoFile == 0)
+            {
+                blueMessage("Begin of the file transfer...\n");
+                pthread_create(&fileSendThread, NULL, prepareTransfer, dataStruct);
+                pthread_join(fileSendThread, 0);
+                shutdown(dSFileSend, 2);
+            }
+            else
+            {
+                redMessage("Error connexion server for sending file ! \n");
+            }
+        }
+    }
+}
+
+void prepareTransfer(void *sendFileData) // prepare the sending of the file
+{
+    FILE *fp;
+    sendFileStruct *data = (sendFileStruct *)sendFileData;
+
+    size_t filenameSize = strlen(data->filename);
+
+    fp = fopen(data->path, "rb");
+    if (fp == NULL)
+    {
+        redMessage("The file doesn't exist !\n");
+    }
+    else
+    {
         // fill the struct
         fileStruct *file = (fileStruct *)malloc(sizeof(fileStruct));
         file->filenameSize = filenameSize;
-        file->fileSize = fileSize;
+        file->fileSize = data->fileSize;
+        file->path = data->path;
 
         // Send fileStruct and filename
         int structSize = sizeof(*file);
@@ -93,11 +110,11 @@ void prepareTransfer(void *sendFileData) // prepare the sending of the file
         {
             redErrorMessage("Error in sending struct size\n");
         }
-        if (send(data->socketServer, filename, file->filenameSize, 0) == -1) // send the filename
+        if (send(data->socketServer, data->filename, file->filenameSize, 0) == -1) // send the filename
         {
             redErrorMessage("Error in sending filename\n");
         }
-        fileTransfer(data->socketServer, file, filename);
+        fileTransfer(data->socketServer, file, data->filename);
     }
 }
 
@@ -106,13 +123,12 @@ void fileTransfer(int socket, fileStruct *file, char *name) // transfer the file
     FILE *fp;
     char buffer[SIZE];
     fileStruct *fileData = file;
-
+    
     char *folder = "userStorage/";
     char *filename = name;
     long fileSize = fileData->fileSize;
-    char *path = (char *)malloc((strlen(folder) + fileData->filenameSize) * sizeof(char));
-    strcat(path, folder);
-    strcat(path, filename);
+    char *path = fileData->path;
+    
     fp = fopen(path, "rb"); // Open the file in binary mode
 
     int count;
@@ -183,21 +199,59 @@ void prepareGetFile(void *data)
 
     sendSpecificMessage(dataGetFile->socketServer, mess[1]);
 
-    // Size reception
-    int size;
-    if (recv(dataGetFile->socketServer, &size, sizeof(int), 0) == -1)
+    u_long sizeFileExist;
+    if (recv(dataGetFile->socketServer, &sizeFileExist, sizeof(u_long), 0) == -1)
     {
-        redErrorMessage("Error struct size received\n");
+        redErrorMessage("Error sizeFileExist received\n");
     }
 
-    // Struct reception
-    fileStruct *fileInfo = (fileStruct *)malloc(size);
-    if (recv(dataGetFile->socketServer, fileInfo, size, 0) == -1)
+    char *fileExist = (char*)malloc(sizeFileExist);
+    if (recv(dataGetFile->socketServer, fileExist, sizeFileExist, 0) == -1)
     {
-        redErrorMessage("Error struct received\n");
+        redErrorMessage("Error fileExist received\n");
     }
 
-    receiveFile(fileInfo, dataGetFile->socketServer, mess[1]);
+    if (strcmp(fileExist, "The file doesn't exist !") == 0)
+    {
+        redMessage("The file doesn't exist !\n");
+    }
+    else
+    {
+        u_long sizeFilesizeGood;
+        if (recv(dataGetFile->socketServer, &sizeFilesizeGood, sizeof(u_long), 0) == -1)
+        {
+            redErrorMessage("Error sizeFileGood received\n");
+        }
+
+        char *filesizeGood = (char *)malloc(sizeFilesizeGood);
+        if (recv(dataGetFile->socketServer, filesizeGood, sizeFilesizeGood, 0) == -1)
+        {
+            redErrorMessage("Error filesizeGood received\n");
+        }
+
+        if (strcmp(filesizeGood, "You cannot send a file over 100MB") == 0)
+        {
+            redMessage("The file size is over 100MB, you cannot download it !\n");
+        }
+        else
+        {
+            // Size reception
+            int size;
+            if (recv(dataGetFile->socketServer, &size, sizeof(int), 0) == -1)
+            {
+                redErrorMessage("Error struct size received\n");
+            }
+
+            // Struct reception
+            fileStruct *fileInfo = (fileStruct *)malloc(size);
+            if (recv(dataGetFile->socketServer, fileInfo, size, 0) == -1)
+            {
+                redErrorMessage("Error struct received\n");
+            }
+
+            receiveFile(fileInfo, dataGetFile->socketServer, mess[1]);
+        }
+    }
 }
 
 void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename)

@@ -7,6 +7,8 @@ struct sendFileStruct
 {
     int socketServer;
     char *filename;
+    char *path;
+    long fileSize;
 };
 
 typedef struct getFileStruct getFileStruct;
@@ -23,6 +25,7 @@ struct fileStruct
 {
     size_t filenameSize;
     long fileSize;
+    char *path;
 };
 
 void connectSocketFileSend(sendFileStruct *data, int port, char *ip);       // connect socket for send file
