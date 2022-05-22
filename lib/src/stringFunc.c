@@ -26,7 +26,7 @@ char **str_split(char *msg, int n)
 }
 
 // count the number of space in a command
-int verifCommand(char *cmd, int nbSpace)
+int countSpaceCommand(char *cmd, int nbSpace)
 {
     int spaceFound = 0;
     for (int i = 0; i <= strlen(cmd); i++)

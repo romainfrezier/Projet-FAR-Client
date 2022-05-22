@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include <sys/stat.h>
 
 #include "../headers/list.h"
 #include "../headers/colors.h"
@@ -158,12 +157,12 @@ int getIdByFilename(List *list, char *filename)
         }
         else
         {
-            return NULL;
+            return -1;
         }
     }
     else
     {
-        return NULL;
+        return -1;
     }
 }
 

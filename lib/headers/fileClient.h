@@ -30,9 +30,9 @@ struct fileStruct
 
 void connectSocketFileSend(sendFileStruct *data, int port, char *ip);       // connect socket for send file
 void connectSocketFileGet(getFileStruct *data, int port, char *ip);         // connect socket for get file
-void prepareTransfer(void *sendFileData);                                   // prepare the sending of the file
+void * prepareTransfer(void *sendFileData);                                   // prepare the sending of the file
 void fileTransfer(int socket, fileStruct *file, char *name);                // transfer the file to the server
-void prepareGetFile(void *data);                                            // prepare the receiving of the file 
+void * prepareGetFile(void *data);                                            // prepare the receiving of the file
 void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename);   // receive the file from the server
 
 #endif // FILECLIENT_H_

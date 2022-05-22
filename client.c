@@ -9,59 +9,36 @@
 
 #include "lib/headers/client.h"
 #include "lib/headers/colors.h"
-#include "lib/headers/stringFunc.h"
-#include "lib/headers/fileClient.h"
 #include "lib/headers/commandClient.h"
-#include "lib/headers/list.h"
+#include "lib/headers/stringFunc.h"
 
 #define MAX 100
 
 regex_t regex;
-struct sockaddr_in aS;
 
 int dS;
 char *ipAddress;
 int portSendingFile;
+pthread_t sendThread;
+pthread_t receiveThread;
 
 // We want a thread that manages the shipment and another who manages the receipt
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   // args check
-  if (argc != 3){
+  if (argc != 3)
+  {
     redErrorMessage("Usage : ./exe IP port");
   }
-  if (atoi(argv[2]) <= 1024){
+  if (atoi(argv[2]) <= 1024)
+  {
     redErrorMessage("Bad port: must be greater than 1024");
   }
 
   greenMessage("Start program\n");
 
-  int enable = 1;
-
-  dS = socket(PF_INET, SOCK_STREAM, 0);
-  if (dS < 0)
-  {
-    redErrorMessage("ERROR opening socket for sending file");
-  }
-  if (setsockopt(dS, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-  {
-    redErrorMessage("setsockopt(SO_REUSEADDR) failed");
-  }
-
-  // info for sending file socket
   ipAddress = argv[1];
-  portSendingFile = atoi(argv[2]) + 1;
-
-  // fill info for socket dS
-  struct sockaddr_in aS;
-  aS.sin_family = AF_INET;
-  inet_pton(AF_INET, ipAddress, &(aS.sin_addr));
-  aS.sin_port = htons(atoi(argv[2]));
-  socklen_t lgA = sizeof(struct sockaddr_in);
-
-  // connection to socket dS
-  connect(dS, (struct sockaddr *)&aS, lgA);
+  dS = socketConnection(atoi(argv[2]));
 
   // check the ^C
   signal(SIGINT, signalHandler);
@@ -100,21 +77,24 @@ main(int argc, char *argv[])
       blueMessage(username);
       printf("\n\n");
       sendSpecificMessage(dS, username);
-    } else {
+    }
+    else
+    {
       greenMessage(isConnected);
       printf("\n\n");
     }
   } while (check != 0);
 
-  // Execution of threads
-  pthread_t send;
-  pthread_t receive;
-  pthread_create(&send, NULL, sendMessage, dS);
-  pthread_create(&receive, NULL, receiveMessage, dS);
+  while(1){
+    // Create message threads
+    pthread_create(&sendThread, NULL, sendMessage, (void *)dS);
+    pthread_create(&receiveThread, NULL, receiveMessage, (void *)dS);
+    pthread_join(receiveThread, 0);
+    pthread_cancel(sendThread);
+  }
 
   // Waiting for the end of threads
-  pthread_join(send, 0);
-  pthread_join(receive, 0);
+  pthread_join(sendThread, 0);
 
   // Shutdown of socket
   shutdown(dS, 2);
@@ -122,7 +102,7 @@ main(int argc, char *argv[])
 }
 
 // Sending a message to the server
-void sendMessage(int socket)
+void *sendMessage(void *socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
 
@@ -138,22 +118,22 @@ void sendMessage(int socket)
     u_long size = strlen(m) + 1;
 
     // check user given command
-    checkCommand(m, ipAddress, portSendingFile, socket);
+    checkCommand(m, ipAddress, portSendingFile, (int)socket);
   }
-  shutdown(socket, 2);
+  shutdown((int)socket, 2);
   free(m);
   exit(0);
 }
 
 // Reception of a server message
-void receiveMessage(int socket)
+void *receiveMessage(void *socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
   while (1)
   {
     // Size reception
     u_long sizeMessage;
-    int receive = recv(socket, &sizeMessage, sizeof(u_long), 0);
+    int receive = recv((int)socket, &sizeMessage, sizeof(u_long), 0);
     if (receive == -1)
     {
       redErrorMessage("Error message size received\n");
@@ -165,7 +145,7 @@ void receiveMessage(int socket)
 
     // Message reception
     char *messageReceive = (char *)malloc(sizeMessage * sizeof(char));
-    if (recv(socket, messageReceive, sizeMessage * sizeof(char), 0) == -1)
+    if (recv((int)socket, messageReceive, sizeMessage * sizeof(char), 0) == -1)
     {
       redErrorMessage("Error message received\n");
     }
@@ -182,9 +162,23 @@ void receiveMessage(int socket)
     resRegexPm = regcomp(&regex, "^(pm)[:print:]*", 0);
     resRegexPm = regexec(&regex, messageReceive, 0, NULL, 0);
 
+    regex_t regexJChannel;
+    int resRegexJChannel = regcomp(&regexJChannel, "^\/jchannel [0-9]*", REG_EXTENDED);
+    resRegexJChannel = regexec(&regexJChannel, messageReceive, 0, NULL, 0);
+    regfree(&regexJChannel);
+
     if (resRegexPm == 0)
     {
       purpleMessage(messageReceive);
+    }
+    else if (resRegexJChannel == 0)
+    {
+      char **msg = str_split(messageReceive, 1);
+      int port = atoi(msg[1]);
+      shutdown(socket, 2);
+      redMessage("You left the channel \n");
+      dS = socketConnection(port);
+      break;
     }
     else
     {
@@ -200,4 +194,32 @@ void receiveMessage(int socket)
 void signalHandler(int n)
 {
   quitForUser(dS);
+}
+
+int socketConnection(int port)
+{
+  int newdS = socket(PF_INET, SOCK_STREAM, 0);
+  int enable = 1;
+  if (newdS < 0)
+  {
+    redErrorMessage("ERROR opening socket for sending file");
+  }
+  if (setsockopt(newdS, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+  {
+    redErrorMessage("setsockopt(SO_REUSEADDR) failed");
+  }
+
+  // info for sending file socket
+  portSendingFile = port + 1;
+
+  // fill info for socket dS
+  struct sockaddr_in aS;
+  aS.sin_family = AF_INET;
+  inet_pton(AF_INET, ipAddress, &(aS.sin_addr));
+  aS.sin_port = htons(port);
+  socklen_t lgA = sizeof(struct sockaddr_in);
+
+  // connection to socket newdS
+  connect(newdS, (struct sockaddr *)&aS, lgA);
+  return newdS;
 }

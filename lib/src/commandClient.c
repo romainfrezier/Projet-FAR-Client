@@ -4,6 +4,8 @@
 #include <string.h>
 #include <regex.h>
 
+
+#include "../headers/client.h"
 #include "../headers/colors.h"
 #include "../headers/commandClient.h"
 #include "../headers/list.h"
@@ -63,17 +65,16 @@ void displayManual()
 // check user given command
 void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
 {
-    int resRegexSFile;
-    int resRegexGFile;
-    int resRegexSelectFile;
-    int resRegexQuitSelectFile;
-    regex_t regex;
+    regex_t regexSFile;
+    int resRegexSFile = regcomp(&regexSFile, "^/sfile", 0);
+    resRegexSFile = regexec(&regexSFile, m, 0, NULL, 0);
+    regfree(&regexSFile);
 
-    resRegexSFile = regcomp(&regex, "^/sfile", 0);
-    resRegexSFile = regexec(&regex, m, 0, NULL, 0);
-
-    resRegexGFile = regcomp(&regex, "^/gfile[:print:]*", 0);
-    resRegexGFile = regexec(&regex, m, 0, NULL, 0);
+    
+    regex_t regexGFile;
+    int resRegexGFile = regcomp(&regexGFile, "^/gfile[:print:]*", 0);
+    resRegexGFile = regexec(&regexGFile, m, 0, NULL, 0);
+    regfree(&regexGFile);
 
     if (strcmp(m, "/man") == 0)
     {
@@ -94,11 +95,15 @@ void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
             blueMessage("\nEnter the number of the file you want to send : ");
             fgets(selected, 12, stdin);
 
-            resRegexSelectFile = regcomp(&regex, "[0-9]", 0);
-            resRegexSelectFile = regexec(&regex, selected, 0, NULL, 0);
+            regex_t regexSelectFile;
+            int resRegexSelectFile = regcomp(&regexSelectFile, "[0-9]", 0);
+            resRegexSelectFile = regexec(&regexSelectFile, selected, 0, NULL, 0);
+            regfree(&regexSelectFile);
 
-            resRegexQuitSelectFile = regcomp(&regex, "q", 0);
-            resRegexQuitSelectFile = regexec(&regex, selected, 0, NULL, 0);
+            regex_t regexQuitSelectFile;
+            int resRegexQuitSelectFile = regcomp(&regexQuitSelectFile, "q", 0);
+            resRegexQuitSelectFile = regexec(&regexQuitSelectFile, selected, 0, NULL, 0);
+            regfree(&regexQuitSelectFile);
 
             if (resRegexSelectFile == 0)
             {
@@ -109,7 +114,8 @@ void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
                 }
                 else
                 {
-                    redMessage("\nPlease enter a valid number\n");
+                    redMessage("\nPlease enter a valid number");
+                    displayFileList(list);
                 }
             }
             else if (resRegexQuitSelectFile == 0)
@@ -119,7 +125,8 @@ void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
             }
             else
             {
-                redMessage("\nPlease enter a number\n");
+                redMessage("\nPlease enter a number");
+                displayFileList(list);
             }
         } while (entryAccepted != 0);
         if (quitMenu != 0)

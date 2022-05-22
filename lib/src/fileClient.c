@@ -80,7 +80,7 @@ void connectSocketFileSend(sendFileStruct *data, int port, char *ip) // connect 
     }
 }
 
-void prepareTransfer(void *sendFileData) // prepare the sending of the file
+void * prepareTransfer(void *sendFileData) // prepare the sending of the file
 {
     FILE *fp;
     sendFileStruct *data = (sendFileStruct *)sendFileData;
@@ -116,6 +116,7 @@ void prepareTransfer(void *sendFileData) // prepare the sending of the file
         }
         fileTransfer(data->socketServer, file, data->filename);
     }
+    return NULL;
 }
 
 void fileTransfer(int socket, fileStruct *file, char *name) // transfer the file to the socket
@@ -192,7 +193,7 @@ void connectSocketFileGet(getFileStruct *data, int port, char *ip) // connect so
     }
 }
 
-void prepareGetFile(void *data)
+void * prepareGetFile(void *data)
 {
     getFileStruct *dataGetFile = (getFileStruct *)data;
     char **mess = str_split(dataGetFile->cmd, 1);
@@ -252,6 +253,7 @@ void prepareGetFile(void *data)
             receiveFile(fileInfo, dataGetFile->socketServer, mess[1]);
         }
     }
+    return NULL;
 }
 
 void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename)
