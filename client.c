@@ -188,6 +188,7 @@ void *receiveMessage(void *socket)
     printf("Enter your message (100 max) : \n");
   }
   free(m);
+  return NULL;
 }
 
 // Handler for ^C
