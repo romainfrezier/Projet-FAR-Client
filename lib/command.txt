@@ -19,13 +19,13 @@
 |  * ------------------------------------------------------------------ *  |
 |  |                     ↓ ↓ ↓ USER MANAGMENT ↓ ↓ ↓                     |  |
 |  | ------------------------------------------------------------------ |  |
+|  | • /kick pseudo :           Kick the user from the server (admin    |  |
+|  |                            only)                                   |  |
+|  | ------------------------------------------------------------------ |  |
 |  | • /quit :                  Allows you to exit the chat server      |  |
 |  | ------------------------------------------------------------------ |  |
 |  | • /admin adminKey :        Give you all the permission if the key  |  |
 |  |                            is valid                                |  |
-|  | ------------------------------------------------------------------ |  |
-|  | • /kick pseudo :           Kick the user from the server (admin    |  |
-|  |                            only)                                   |  |
 |  | ------------------------------------------------------------------ |  |
 |  | • /users :                 Give you all the users currently        |  |
 |  |                            connected                               |  |
@@ -53,13 +53,16 @@
 |  | • /channel name :          You can create a new channel with the   |  |
 |  |                            the name in arguments (admin only)      |  |
 |  | ------------------------------------------------------------------ |  |
-|  | • /lchannel :              List all the channel of the server      |  |
-|  | ------------------------------------------------------------------ |  |
-|  | • /jchannel number :       Join the channel that correspond to the |  |
-|  |                            number                                  |  |
+|  | • /rmchannel number :      You can remove the channel with the     |  |
+|  |                            the number in arguments (admin only)    |  |
 |  | ------------------------------------------------------------------ |  |
 |  | • /mchannel number name:   Modify the channel that correspond to   |  |
 |  |                            the number with the name passed (admin  |  |
 |  |                            only)                                   |  |
+|  | ------------------------------------------------------------------ |  |
+|  | • /lchannel :              List all the channel of the server      |  |
+|  | ------------------------------------------------------------------ |  |
+|  | • /jchannel number :       Join the channel that correspond to the |  |
+|  |                            number                                  |  |
 |  * ------------------------------------------------------------------ *  |
 * ------------------------------------------------------------------------ *
