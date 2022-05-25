@@ -12,6 +12,7 @@ Client side of the development of a messaging system with the C language
 | /shutdown  |                       | Turn off the server                                                                                                      | Admins Only |
 | /kick      | pseudo                | Kick the user with the pseudo "pseudo"                                                                                   | Admins Only |
 | /luser-all |                       | List of all the user currently connected on the whole server                                                             | Admins Only |
+| /addword   | word                  | Add a word to censorship words list                                                                                      | Admins Only |
 | /quit      |                       | Allows you to quit the chat server                                                                                       | Everyone    |
 | /admin     | password              | Give you all the permissions if the password is valid                                                                    | Everyone    |
 | /luser     |                       | List of all the user currently connected on your channel                                                                 | Everyone    |
