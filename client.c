@@ -11,10 +11,10 @@
 #include "lib/headers/colors.h"
 #include "lib/headers/commandClient.h"
 #include "lib/headers/stringFunc.h"
+#include "lib/headers/tools.h"
 
 #define MAX 100
 
-regex_t regex;
 
 int dS;
 char *ipAddress;
@@ -109,14 +109,11 @@ void *sendMessage(void *socket)
   while (strcmp(m, "/quit") != 0)
   {
     // Client input
-    printf("Enter your message (100 max) : \n");
+    printf("Enter your message (100 max) : \033[0;32m");
     fgets(m, 100, stdin);
     m[strcspn(m, "\n")] = 0;
-    greenMessage("My message : ");
-    greenMessage(m);
-    printf("\n");
     u_long size = strlen(m) + 1;
-
+    reset();
     // check user given command
     checkCommand(m, ipAddress, portSendingFile, (int)socket);
   }
@@ -158,18 +155,26 @@ void *receiveMessage(void *socket)
     }
 
     // check if the message received is a pm
-    int resRegexPm;
-    resRegexPm = regcomp(&regex, "^(pm)[:print:]*", 0);
-    resRegexPm = regexec(&regex, messageReceive, 0, NULL, 0);
+    int resRegexPm = regex(messageReceive, "(pm).*");
+
+    int resRegexAll = regex(messageReceive, "(ALL).*");
+
 
     regex_t regexJChannel;
-    int resRegexJChannel = regcomp(&regexJChannel, "^\/jchannel [0-9]*", REG_EXTENDED);
+    int resRegexJChannel = regcomp(&regexJChannel, "^/jchannel [0-9]*", REG_EXTENDED);
     resRegexJChannel = regexec(&regexJChannel, messageReceive, 0, NULL, 0);
     regfree(&regexJChannel);
 
     if (resRegexPm == 0)
     {
+      printf("\n");
       purpleMessage(messageReceive);
+      printf("\n");
+    }
+    else if (resRegexAll == 0){
+      printf("\n");
+      redMessage(messageReceive);
+      printf("\n");
     }
     else if (resRegexJChannel == 0)
     {
@@ -182,10 +187,11 @@ void *receiveMessage(void *socket)
     }
     else
     {
+      printf("\n");
       blueMessage(messageReceive);
+      printf("\n");
     }
-    printf("\n");
-    printf("Enter your message (100 max) : \n");
+    printf("Enter your message (100 max) : \033[0;32m\n");
   }
   free(m);
   return NULL;

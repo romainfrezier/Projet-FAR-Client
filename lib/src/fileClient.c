@@ -4,11 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <dirent.h>
 
 #include "../headers/fileClient.h"
 #include "../headers/colors.h"
 #include "../headers/stringFunc.h"
 #include "../headers/commandClient.h"
+#include "../headers/tools.h"
 
 #define SIZE 1024 // define the size of the block of bytes that are sent to the server
 
@@ -193,6 +195,50 @@ void connectSocketFileGet(getFileStruct *data, int port, char *ip) // connect so
     }
 }
 
+char *chooseNameFile(char *nameFile, int i)
+{
+    DIR *d;
+    struct dirent *dir;
+    int found = 1;
+    d = opendir("./serverStorage");
+    while ((dir = readdir(d)) != NULL && found != 0)
+    {
+        if (strcmp(nameFile, dir->d_name) == 0)
+        {
+            found = 0;
+        }
+    }
+    char *arr[3];
+    char *haveNumber[3];
+    if (found == 0)
+    {
+        // change name
+        getRegexGroup(arr, 3, nameFile, "^(.*)(\\..*)$");
+        int regexRes = regex(arr[1], "^(.*)(-[0-9]+).*$");
+        char *cpy = (char *)malloc(strlen(arr[1]));
+        strcpy(cpy, arr[1]);
+        if (regexRes == 0)
+        {
+            getRegexGroup(haveNumber, 3, arr[1], "^(.*)(-[0-9]+)");
+            strremove(cpy, haveNumber[2]);
+        }
+        char *number = (char *)malloc(10);
+        char *format = (char *)malloc(10);
+        strcat(format, "-");
+        sprintf(number, "%d", i);
+        strcat(format, number);
+        char *newFilename = (char *)malloc(strlen(cpy) + strlen(format) + strlen(arr[2]));
+        strcpy(newFilename, cpy);
+        strcat(newFilename, format);
+        strcat(newFilename, arr[2]);
+        return chooseNameFile(newFilename, i + 1);
+    }
+    else
+    {
+        return nameFile;
+    }
+}
+
 void * prepareGetFile(void *data)
 {
     getFileStruct *dataGetFile = (getFileStruct *)data;
@@ -262,10 +308,12 @@ void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename)
     char buffer[SIZE];
     int recvBuffer;
 
+    char* newFilename = chooseNameFile(filename, 1);
+
     char *folder = "userStorage/";
-    char *path = (char *)malloc((strlen(folder) + strlen(filename)) * sizeof(char));
+    char *path = (char *)malloc((strlen(folder) + strlen(newFilename)) * sizeof(char));
     strcat(path, folder);
-    strcat(path, filename);
+    strcat(path, newFilename);
 
     long fileSize = fileInfo->fileSize;
 

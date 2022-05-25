@@ -4,12 +4,12 @@
 #include <string.h>
 #include <regex.h>
 
-
 #include "../headers/client.h"
 #include "../headers/colors.h"
 #include "../headers/commandClient.h"
 #include "../headers/list.h"
 #include "../headers/fileClient.h"
+#include "../headers/tools.h"
 
 // Sending a specific message to the server
 void sendSpecificMessage(int client, char *message)
@@ -33,12 +33,12 @@ void quitForUser(int socket)
     char *m = "/quit";
     u_long size = strlen(m);
 
-    if (send(socket, &size, sizeof(u_long), 0) == -1)   // Send message size
+    if (send(socket, &size, sizeof(u_long), 0) == -1) // Send message size
     {
         redErrorMessage("Error sending size\n");
     }
 
-    if (send(socket, m, size, 0) == -1)                 // Send message
+    if (send(socket, m, size, 0) == -1) // Send message
     {
         redErrorMessage("Error sending message\n");
     }
@@ -50,31 +50,22 @@ void displayManual()
 {
     FILE *manual;
     char c;
-    manual = fopen("./lib/command.txt", "rt");  // open the manual file (command.txt)
-    printf("\033[0;34m");                       // make the color blue to print char (can't use blueMessage, the function wants a char*)
+    manual = fopen("./lib/command.txt", "rt"); // open the manual file (command.txt)
+    printf("\033[0;34m");                      // make the color blue to print char (can't use blueMessage, the function wants a char*)
     while ((c = fgetc(manual)) != EOF)
     {
-        printf("%c",c);                         // print every character of the manual file
-        
+        printf("%c", c); // print every character of the manual file
     }
-    reset();                                    // reset the print color
+    reset(); // reset the print color
     fclose(manual);
     printf("\n\n");
 }
 
 // check user given command
-void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
+void checkCommand(char *m, char *ipAddress, int portSendingFile, int socket)
 {
-    regex_t regexSFile;
-    int resRegexSFile = regcomp(&regexSFile, "^/sfile", 0);
-    resRegexSFile = regexec(&regexSFile, m, 0, NULL, 0);
-    regfree(&regexSFile);
-
-    
-    regex_t regexGFile;
-    int resRegexGFile = regcomp(&regexGFile, "^/gfile[:print:]*", 0);
-    resRegexGFile = regexec(&regexGFile, m, 0, NULL, 0);
-    regfree(&regexGFile);
+    int resRegexSFile = regex(m, "^/sfile *$");
+    int resRegexDFile = regex(m, "^/dfile +([^ ]*) *$");
 
     if (strcmp(m, "/man") == 0)
     {
@@ -95,15 +86,10 @@ void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
             blueMessage("\nEnter the number of the file you want to send : ");
             fgets(selected, 12, stdin);
 
-            regex_t regexSelectFile;
-            int resRegexSelectFile = regcomp(&regexSelectFile, "[0-9]", 0);
-            resRegexSelectFile = regexec(&regexSelectFile, selected, 0, NULL, 0);
-            regfree(&regexSelectFile);
 
-            regex_t regexQuitSelectFile;
-            int resRegexQuitSelectFile = regcomp(&regexQuitSelectFile, "q", 0);
-            resRegexQuitSelectFile = regexec(&regexQuitSelectFile, selected, 0, NULL, 0);
-            regfree(&regexQuitSelectFile);
+            int resRegexSelectFile = regex(selected, "[0-9]");
+            int resRegexQuitSelectFile = regex(selected, "q");
+            
 
             if (resRegexSelectFile == 0)
             {
@@ -142,7 +128,7 @@ void checkCommand(char *m, char* ipAddress, int portSendingFile, int socket)
             connectSocketFileSend(&data, portSendingFile, ipAddress);
         }
     }
-    else if (resRegexGFile == 0)
+    else if (resRegexDFile == 0)
     {
         // send socket data to the server
         getFileStruct data;

@@ -34,5 +34,6 @@ void * prepareTransfer(void *sendFileData);                                   //
 void fileTransfer(int socket, fileStruct *file, char *name);                // transfer the file to the server
 void * prepareGetFile(void *data);                                            // prepare the receiving of the file
 void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename);   // receive the file from the server
+char *chooseNameFile(char *nameFile, int i);
 
 #endif // FILECLIENT_H_

@@ -22,14 +22,18 @@
 |  | • /kick pseudo :                        Kick the user from the server (admin    |  |
 |  |                                         only)                                   |  |
 |  | ------------------------------------------------------------------------------- |  |
+|  | • /luser-all :                          List of all the users currently         |  |
+|  |                                         connected on the whole server (admin    |  |
+|  |                                         only)                                   |  |
+|  | ------------------------------------------------------------------------------- |  |
 |  | • /quit :                               Allows you to exit the chat server      |  |
 |  | ------------------------------------------------------------------------------- |  |
 |  | • /admin adminKey :                     Give you all the permission if the key  |  |
 |  |                                         is valid                                |  |
 |  | ------------------------------------------------------------------------------- |  |
-|  | • /users :                              Give you all the users currently        |  |
-|  |                                         connected                               |  |
-|  | ------------------------------------------------------------------ -------------|  |
+|  | • /luser :                              List of all the users currently         |  |
+|  |                                         connected in your channel               |  |
+|  | ------------------------------------------------------------------------------- |  |
 |  | • /rename username :                    You can change your username            |  |
 |  * ------------------------------------------------------------------------------- *  |
 |                                                                                       |
@@ -40,22 +44,21 @@
 |  |                                         which one you want to send. Enter q for |  |
 |  |                                         leave the selection menu                |  |
 |  | ------------------------------------------------------------------------------- |  |
-|  | • /files :                              Display all the files stored on the     |  |
-|  |                                         server                                  |  |
+|  | • /lfile :                              List all the files stored on the server |  |
 |  | ------------------------------------------------------------------------------- |  |
-|  | • /gfile filename :                     Download the file "filename" from the   |  |
+|  | • /dfile filename :                     Download the file "filename" from the   |  |
 |  |                                         server                                  |  |
 |  * ------------------------------------------------------------------------------- *  |
 |                                                                                       |
 |  * ------------------------------------------------------------------------------- *  |
 |  |                               ↓ ↓ ↓  CHANNEL ↓ ↓ ↓                              |  |
 |  | ------------------------------------------------------------------------------- |  |
-|  | • /channel name theme :                 You can create a new channel with the   |  |
-|  |                                         the name (without space) in arguments   |  | 
-|  |                                         (admin only)                            |  |
+|  | • /cchannel name theme :                Create a new channel with the name      |  |
+|  |                                         (without space) in arguments (admin     |  | 
+|  |                                         only)                                   |  |
 |  | ------------------------------------------------------------------------------- |  |
-|  | • /rmchannel number :                   You can remove the channel with the     |  |
-|  |                                         the number in arguments (admin only)    |  |
+|  | • /rmchannel number :                   Remove the channel with the number in   |  |
+|  |                                         arguments (admin only)                  |  |
 |  | ------------------------------------------------------------------------------- |  |
 |  | • /mchannel [-n][-t] number content :   Modify the channel that correspond to   |  |
 |  |                                         the number with the name passed. [-t]   |  |
