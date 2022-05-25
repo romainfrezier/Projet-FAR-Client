@@ -152,7 +152,7 @@ void fileTransfer(int socket, fileStruct *file, char *name) // transfer the file
             perror("Error in sending file.");
             exit(1);
         }
-        bzero(buffer, SIZE); // Reset the buffer
+        bzero(buffer, count); // Reset the buffer
     }
     fclose(fp); // Close the file
     greenMessage("File send succesfully\n");
@@ -200,7 +200,7 @@ char *chooseNameFile(char *nameFile, int i)
     DIR *d;
     struct dirent *dir;
     int found = 1;
-    d = opendir("./serverStorage");
+    d = opendir("./userStorage/");
     while ((dir = readdir(d)) != NULL && found != 0)
     {
         if (strcmp(nameFile, dir->d_name) == 0)
@@ -331,14 +331,14 @@ void receiveFile(fileStruct *fileInfo, int serverSocket, char *filename)
             count = fileSize - i;
         }
 
-        recvBuffer = recv(serverSocket, buffer, SIZE, 0); // receive the block of bytes from the user
+        recvBuffer = recv(serverSocket, buffer, count, 0); // receive the block of bytes from the user
         if (recvBuffer <= 0)
         {
             perror("Error in receiving buffer.");
             exit(1);
         }
         fwrite(buffer, sizeof(buffer), 1, fprecv); // write file
-        bzero(buffer, SIZE);
+        bzero(buffer, count);
     }
     greenMessage("File written as ");
     greenMessage(path);

@@ -181,7 +181,7 @@ void *receiveMessage(void *socket)
       char **msg = str_split(messageReceive, 1);
       int port = atoi(msg[1]);
       shutdown(socket, 2);
-      redMessage("You left the channel \n");
+      redMessage("\nYou left the channel \n");
       dS = socketConnection(port);
       break;
     }
