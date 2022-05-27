@@ -22,7 +22,6 @@
 #include "../headers/fileClient.h"
 #include "../headers/tools.h"
 
-// Sending a specific message to the server
 void sendSpecificMessage(int client, char *message)
 {
     u_long sizeMessage = strlen(message) + 1;
@@ -38,26 +37,13 @@ void sendSpecificMessage(int client, char *message)
     }
 }
 
-// Disconnects the user
+
 void quitForUser(int socket)
 {
-    // char *m = "/quit";
-    // u_long size = strlen(m);
-
-    // if (send(socket, &size, sizeof(u_long), 0) == -1) // Send message size
-    // {
-    //     redErrorMessage("Error sending size\n");
-    // }
-
-    // if (send(socket, m, size, 0) == -1) // Send message
-    // {
-    //     redErrorMessage("Error sending message\n");
-    // }
     shutdown(socket, 2);
     redErrorMessage("\nYou have logged out\n");
 }
 
-// Display the command manual
 void displayManual()
 {
     FILE *manual;
@@ -73,7 +59,6 @@ void displayManual()
     printf("\n\n");
 }
 
-// check user given command
 void checkCommand(char *m, char *ipAddress, int portSendingFile, int socket)
 {
     int resRegexSFile = regex(m, "^/sfile *$");

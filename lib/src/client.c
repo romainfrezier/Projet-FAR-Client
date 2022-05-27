@@ -77,7 +77,7 @@ void launchClient(char *ip, int port)
     }
     else if (receive == 0)
     {
-      redErrorMessage("Server shutdown now !\n");
+      redErrorMessage("\nServer shutdown now !\n");
     }
     // Message reception
     char *isConnected = (char *)malloc(sizeCoMsg * sizeof(char));
@@ -122,7 +122,6 @@ void launchClient(char *ip, int port)
   printf("End program\n");
 }
 
-// Sending a message to the server
 void *sendMessage(void *socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
@@ -143,7 +142,6 @@ void *sendMessage(void *socket)
   exit(0);
 }
 
-// Reception of a server message
 void *receiveMessage(void *socket)
 {
   char *m = (char *)malloc(MAX * sizeof(char));
@@ -218,7 +216,6 @@ void *receiveMessage(void *socket)
   return NULL;
 }
 
-// Handler for ^C
 void signalHandler(int n)
 {
   quitForUser(dS);

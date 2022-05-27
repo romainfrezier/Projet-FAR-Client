@@ -17,9 +17,6 @@
 #include "../headers/list.h"
 #include "../headers/colors.h"
 
-// Boolean : 0 = true ; 1 = false
-
-// create an empty list
 List *createList()
 {
     List *list = (List *)malloc(sizeof(List));
@@ -28,7 +25,6 @@ List *createList()
     return list;
 }
 
-// check if the list is empty. Return 0 if the list is empty
 int listIsEmpty(List *list)
 {
     if (list->head == NULL)
@@ -41,7 +37,6 @@ int listIsEmpty(List *list)
     }
 }
 
-// add a file to the last position of the list
 void addLast(List *list, File* file)
 {
     File *link = (File *)malloc(sizeof(File));
@@ -61,7 +56,6 @@ void addLast(List *list, File* file)
     }
 }
 
-// go to the next Link of the list
 File *next(File *file)
 {
     if (file->next == NULL)
@@ -74,7 +68,6 @@ File *next(File *file)
     }
 }
 
-// delete the first element of the list
 void delFirst(List *list)
 {
     if (list->head != NULL)
@@ -85,7 +78,6 @@ void delFirst(List *list)
     }
 }
 
-// delete an element of the list passed in arguments
 void delVal(List *list, File* file)
 {
     if (listIsEmpty(list) == 1)
@@ -105,7 +97,6 @@ void delVal(List *list, File* file)
     }
 }
 
-// recursive function to delete an element of the list
 void delValAux(File *file)
 {
     if (file->next != NULL)
@@ -127,7 +118,6 @@ void delValAux(File *file)
     }
 }
 
-// chek if the file id is in the list. Return 0 if the file id is in the list
 int fileIdInList(List *fileList, int id)
 {
     if (listIsEmpty(fileList) == 1)
@@ -152,7 +142,6 @@ int fileIdInList(List *fileList, int id)
     }
 }
 
-// get the file id from the filename
 int getIdByFilename(List *list, char *filename)
 {
     if (listIsEmpty(list) == 1)
@@ -177,7 +166,6 @@ int getIdByFilename(List *list, char *filename)
     }
 }
 
-// get the filename from the file id
 char *getFilenameById(List *list, int id)
 {
     if (listIsEmpty(list) == 1)
@@ -202,7 +190,6 @@ char *getFilenameById(List *list, int id)
     }
 }
 
-// display the list
 void displayFileList(List *list)
 {
     printf("\n");
@@ -224,7 +211,6 @@ void displayFileList(List *list)
     }
 }
 
-// fill the list with file of the folder passed in arguments
 void fillListFile(char *folder, List* list)
 {
     DIR *d;

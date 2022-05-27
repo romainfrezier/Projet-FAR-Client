@@ -23,12 +23,22 @@
 #include "../headers/commandClient.h"
 #include "../headers/tools.h"
 
-#define SIZE 1024 // define the size of the block of bytes that are sent to the server
+/**
+ * @brief Size of the block of bytes send to the server
+ */
+#define SIZE 1024
 
+/**
+ * @brief Thread to send file
+ */
 pthread_t fileSendThread;
+
+/**
+ * @brief Thread to receive file
+ */
 pthread_t fileGetThread;
 
-void connectSocketFileSend(sendFileStruct *data, int port, char *ip) // connect socket for send file
+void connectSocketFileSend(sendFileStruct *data, int port, char *ip)
 {
     FILE *fp;
     sendFileStruct *dataStruct = (sendFileStruct *)data;
@@ -93,7 +103,7 @@ void connectSocketFileSend(sendFileStruct *data, int port, char *ip) // connect 
     }
 }
 
-void * prepareTransfer(void *sendFileData) // prepare the sending of the file
+void * prepareTransfer(void *sendFileData)
 {
     FILE *fp;
     sendFileStruct *data = (sendFileStruct *)sendFileData;
@@ -132,7 +142,7 @@ void * prepareTransfer(void *sendFileData) // prepare the sending of the file
     return NULL;
 }
 
-void fileTransfer(int socket, fileStruct *file, char *name) // transfer the file to the socket
+void fileTransfer(int socket, fileStruct *file, char *name)
 {
     FILE *fp;
     char buffer[SIZE];
@@ -169,7 +179,7 @@ void fileTransfer(int socket, fileStruct *file, char *name) // transfer the file
     greenMessage("File send succesfully\n");
 }
 
-void connectSocketFileGet(getFileStruct *data, int port, char *ip) // connect socket for send file
+void connectSocketFileGet(getFileStruct *data, int port, char *ip)
 {
     int enable = 1;
     int dSFileGet = socket(PF_INET, SOCK_STREAM, 0);
