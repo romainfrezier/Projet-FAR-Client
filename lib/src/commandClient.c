@@ -41,19 +41,20 @@ void sendSpecificMessage(int client, char *message)
 // Disconnects the user
 void quitForUser(int socket)
 {
-    char *m = "/quit";
-    u_long size = strlen(m);
+    // char *m = "/quit";
+    // u_long size = strlen(m);
 
-    if (send(socket, &size, sizeof(u_long), 0) == -1) // Send message size
-    {
-        redErrorMessage("Error sending size\n");
-    }
+    // if (send(socket, &size, sizeof(u_long), 0) == -1) // Send message size
+    // {
+    //     redErrorMessage("Error sending size\n");
+    // }
 
-    if (send(socket, m, size, 0) == -1) // Send message
-    {
-        redErrorMessage("Error sending message\n");
-    }
-    exit(0); // Exit process whatever happens
+    // if (send(socket, m, size, 0) == -1) // Send message
+    // {
+    //     redErrorMessage("Error sending message\n");
+    // }
+    shutdown(socket, 2);
+    redErrorMessage("\nYou have logged out\n");
 }
 
 // Display the command manual
