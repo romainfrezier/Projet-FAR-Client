@@ -1,3 +1,14 @@
+/**
+ * @file fileClient.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief File functions implementation
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>

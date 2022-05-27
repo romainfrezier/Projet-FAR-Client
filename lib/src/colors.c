@@ -1,3 +1,14 @@
+/**
+ * @file colors.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief Color library implementation
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 

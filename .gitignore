@@ -1,6 +1,10 @@
 # exe
 client
 
+#doc
+doc
+Doxyfile
+
 
 # Created by https://www.toptal.com/developers/gitignore/api/macos,clion,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,clion,visualstudiocode

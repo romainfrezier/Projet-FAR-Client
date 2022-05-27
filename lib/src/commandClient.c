@@ -1,3 +1,14 @@
+/**
+ * @file commandClient.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief Client actions implementation
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>

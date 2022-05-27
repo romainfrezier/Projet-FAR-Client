@@ -1,3 +1,14 @@
+/**
+ * @file tools.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief Regex tools implementation
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +24,7 @@ int regex(char* entry, char* model){
     return regexRes;
 }
 
-void getRegexGroup (char *list[],int n, char *message, char *model) {
+void getRegexGroup (char *list[], int n, char *message, char *model) {
     regex_t regexCompiled;
 
     size_t maxGroups = n;

@@ -1,3 +1,14 @@
+/**
+ * @file client.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief Client functions implementation
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -7,38 +18,48 @@
 #include <signal.h>
 #include <regex.h>
 
-#include "lib/headers/client.h"
-#include "lib/headers/colors.h"
-#include "lib/headers/commandClient.h"
-#include "lib/headers/stringFunc.h"
-#include "lib/headers/tools.h"
+#include "../headers/client.h"
+#include "../headers/colors.h"
+#include "../headers/commandClient.h"
+#include "../headers/stringFunc.h"
+#include "../headers/tools.h"
 
+/**
+ * @brief Maximum size of a message
+ */
 #define MAX 100
 
-
+/**
+ * @brief socket descriptor for the connexion between client and server
+ */
 int dS;
+
+/**
+ * @brief Ip address of the server
+ */
 char *ipAddress;
+
+/**
+ * @brief Port for sending file
+ */
 int portSendingFile;
+
+/**
+ * @brief Thread for send messages
+ */
 pthread_t sendThread;
+
+/**
+ * @brief Thread for receive messages
+ */
 pthread_t receiveThread;
 
-// We want a thread that manages the shipment and another who manages the receipt
-int main(int argc, char *argv[])
+void launchClient(char *ip, int port)
 {
-  // args check
-  if (argc != 3)
-  {
-    redErrorMessage("Usage : ./exe IP port");
-  }
-  if (atoi(argv[2]) <= 1024)
-  {
-    redErrorMessage("Bad port: must be greater than 1024");
-  }
-
   greenMessage("Start program\n");
 
-  ipAddress = argv[1];
-  dS = socketConnection(atoi(argv[2]));
+  ipAddress = ip;
+  dS = socketConnection(port);
 
   // check the ^C
   signal(SIGINT, signalHandler);

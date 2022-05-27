@@ -1,3 +1,14 @@
+/**
+ * @file list.c
+ * @authors Romain FREZIER
+ * @authors Etienne TILLIER
+ * @brief Implementation of a linked list of file
+ * @version 0.1
+ * @date 2022-05-26
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,11 +42,11 @@ int listIsEmpty(List *list)
 }
 
 // add a file to the last position of the list
-void addLast(List *list, Link* fileList)
+void addLast(List *list, File* file)
 {
-    Link *link = (Link *)malloc(sizeof(Link));
-    link->id = fileList->id;
-    link->filename = fileList->filename;
+    File *link = (File *)malloc(sizeof(File));
+    link->id = file->id;
+    link->filename = file->filename;
     if (list->head == NULL)
     {
         list->head = link;
@@ -51,15 +62,15 @@ void addLast(List *list, Link* fileList)
 }
 
 // go to the next Link of the list
-Link *next(Link *link)
+File *next(File *file)
 {
-    if (link->next == NULL)
+    if (file->next == NULL)
     {
         return NULL;
     }
     else
     {
-        return link->next;
+        return file->next;
     }
 }
 
@@ -68,18 +79,18 @@ void delFirst(List *list)
 {
     if (list->head != NULL)
     {
-        Link *deleted = list->head;
+        File *deleted = list->head;
         list->head = list->head->next;
         free(deleted);
     }
 }
 
 // delete an element of the list passed in arguments
-void delVal(List *list, Link* fileList)
+void delVal(List *list, File* file)
 {
     if (listIsEmpty(list) == 1)
     {
-        if (list->head->id == fileList->id)
+        if (list->head->id == file->id)
         {
             delFirst(list);
         }
@@ -95,19 +106,19 @@ void delVal(List *list, Link* fileList)
 }
 
 // recursive function to delete an element of the list
-void delValAux(Link *fileList)
+void delValAux(File *file)
 {
-    if (fileList->next != NULL)
+    if (file->next != NULL)
     {
-        if (fileList->next->id == fileList->id)
+        if (file->next->id == file->id)
         {
-            Link *deleted = fileList->next;
-            deleted->next = fileList->next->next;
+            File *deleted = file->next;
+            deleted->next = file->next->next;
             free(deleted);
         }
         else
         {
-            delValAux(fileList->next);
+            delValAux(file->next);
         }
     }
     else
@@ -117,11 +128,11 @@ void delValAux(Link *fileList)
 }
 
 // chek if the file id is in the list. Return 0 if the file id is in the list
-int fileIdInList(List *listFile, int id)
+int fileIdInList(List *fileList, int id)
 {
-    if (listIsEmpty(listFile) == 1)
+    if (listIsEmpty(fileList) == 1)
     {
-        Link *current = listFile->head;
+        File *current = fileList->head;
         while (current != NULL && current->id != id)
         {
             current = current->next;
@@ -146,7 +157,7 @@ int getIdByFilename(List *list, char *filename)
 {
     if (listIsEmpty(list) == 1)
     {
-        Link *current = list->head;
+        File *current = list->head;
         while (current != NULL && (strcmp(current->filename, filename) != 0))
         {
             current = current->next;
@@ -171,7 +182,7 @@ char *getFilenameById(List *list, int id)
 {
     if (listIsEmpty(list) == 1)
     {
-        Link *current = list->head;
+        File *current = list->head;
         while (current != NULL && id != current->id)
         {
             current = current->next;
@@ -198,7 +209,7 @@ void displayFileList(List *list)
     if (listIsEmpty(list) == 1)
     {
         blueMessage("\nList of your files : \n\n");
-        Link *current = list->head;
+        File *current = list->head;
         while (current != NULL)
         {
             printf("\033[0;34m"); // colors for complex string
@@ -218,7 +229,7 @@ void fillListFile(char *folder, List* list)
 {
     DIR *d;
     struct dirent *dir;
-    Link *link = malloc(sizeof(link));
+    File *link = malloc(sizeof(link));
     
     d = opendir(folder);
     if (d)
