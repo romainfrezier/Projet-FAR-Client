@@ -33,6 +33,10 @@ Client side of the development of a messaging system with the C language
 |            | -nt number name theme | Modify the channel that correspond to the number in arguments with the name (without space) "name" and the theme "theme" | Admins Only |
 | /lchannel  |                       | List all the channel of the server                                                                                       | Everyone    |
 | /jchannel  | number                | Join the channel that correspond to the number                                                                           | Everyone    |
+| /cform     | question number       | Create a new form with the question in arguments and with the number of answer expected                                  | Admins Only |
+| /rmform    | number                | Remove the form with the number in arguments                                                                             | Admins Only |
+| /lform     |                       | List all the form of the channel                                                                                         | Everyone    |
+| /sform     | number                | See the result of the form with the number in arguments                                                                  | Everyone    |
 
 ---
 
