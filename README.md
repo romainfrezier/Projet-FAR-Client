@@ -31,3 +31,8 @@ Client side of the development of a messaging system with the C language
 ---
 
 © Romain FREZIER & Etienne TILLIER - Polytech Montpellier
+
+---
+<a target="_blank" href="https://github.com/romainfrz/Projet-FAR-Server">
+    <img alt="github link" src="https://img.shields.io/badge/github-server git-green?style=for-the-badge&logo=github">
+</a>
