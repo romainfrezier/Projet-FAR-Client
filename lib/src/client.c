@@ -63,6 +63,8 @@ void launchClient(char *ip, int port)
 
   // check the ^C
   signal(SIGINT, signalHandler);
+  // check the end of the terminal
+  signal(SIGTERM, signalHandler);
 
   // Checking username
   int check;
