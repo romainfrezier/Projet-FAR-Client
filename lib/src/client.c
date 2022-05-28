@@ -88,22 +88,26 @@ void launchClient(char *ip, int port)
       redErrorMessage("An error appeared during connection to the server...\n");
     }
 
-    check = strcmp(isConnected, "Connected !");
-
+    check = strcmp(isConnected, "Connected");
+    char *arr[2];
     if (check != 0)
     {
-      printf("%s\n", isConnected);
       char *username = (char *)malloc(sizeof(char) * 50);
-      fgets(username, 50, stdin);
-      username[strcspn(username, "\n")] = 0;
-      printf("\nMy username : ");
-      blueMessage(username);
-      printf("\n\n");
-      sendSpecificMessage(dS, username);
+      do{
+          blueMessage("\nUsername must have only letters, numbers, or . -\nUsername can have a length of 1 to 50 characters\n");
+          printf("\n%s\n", isConnected);
+          fgets(username, 50, stdin);
+          username[strcspn(username, "\n")] = 0;
+      } while(regex(username, "^ *([a-zA-Z0-9\\.-]+) *$") != 0);
+
+      getRegexGroup(arr, 2, username, "^ *([a-zA-Z0-9\\.-]+) *$");
+      sendSpecificMessage(dS, arr[1]);
     }
     else
     {
       greenMessage(isConnected);
+      greenMessage(" as : ");
+      blueMessage(arr[1]);
       printf("\n\n");
     }
   } while (check != 0);
@@ -134,7 +138,6 @@ void *sendMessage(void *socket)
     printf("Enter your message (100 max) : \033[0;32m");
     fgets(m, 100, stdin);
     m[strcspn(m, "\n")] = 0;
-    u_long size = strlen(m) + 1;
     reset();
     // check user given command
     checkCommand(m, ipAddress, portSendingFile, (int)socket);

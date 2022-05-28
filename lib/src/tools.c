@@ -14,11 +14,19 @@
 #include <string.h>
 #include <regex.h>
 #include "../headers/tools.h"
+#include "../headers/colors.h"
 
 int regex(char* entry, char* model){
+    size_t buffer = 100;
+    char error[buffer];
     regex_t regex;
     int regexRes;
     regexRes = regcomp(&regex, model, REG_EXTENDED);
+    if (regexRes != 0)
+    {
+        regerror(regexRes, &regex,error,buffer);
+        redErrorMessage(error);
+    }
     regexRes = regexec(&regex, entry, 0, NULL, 0);
     regfree(&regex);
     return regexRes;
