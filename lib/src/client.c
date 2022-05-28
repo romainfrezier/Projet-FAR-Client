@@ -114,8 +114,8 @@ void launchClient(char *ip, int port)
 
   while(1){
     // Create message threads
-    pthread_create(&sendThread, NULL, sendMessage, (void *)dS);
-    pthread_create(&receiveThread, NULL, receiveMessage, (void *)dS);
+    pthread_create(&sendThread, NULL, sendMessage, (void *)(size_t)dS);
+    pthread_create(&receiveThread, NULL, receiveMessage, (void *)(size_t)dS);
     pthread_join(receiveThread, 0);
     pthread_cancel(sendThread);
   }
@@ -140,9 +140,9 @@ void *sendMessage(void *socket)
     m[strcspn(m, "\n")] = 0;
     reset();
     // check user given command
-    checkCommand(m, ipAddress, portSendingFile, (int)socket);
+    checkCommand(m, ipAddress, portSendingFile, (int)(size_t)socket);
   }
-  shutdown((int)socket, 2);
+  shutdown((int)(size_t)socket, 2);
   free(m);
   exit(0);
 }
@@ -154,7 +154,7 @@ void *receiveMessage(void *socket)
   {
     // Size reception
     u_long sizeMessage;
-    int receive = recv((int)socket, &sizeMessage, sizeof(u_long), 0);
+    int receive = recv((int)(size_t)socket, &sizeMessage, sizeof(u_long), 0);
     if (receive == -1)
     {
       redErrorMessage("Error message size received\n");
@@ -166,7 +166,7 @@ void *receiveMessage(void *socket)
 
     // Message reception
     char *messageReceive = (char *)malloc(sizeMessage * sizeof(char));
-    if (recv((int)socket, messageReceive, sizeMessage * sizeof(char), 0) == -1)
+    if (recv((int)(size_t)socket, messageReceive, sizeMessage * sizeof(char), 0) == -1)
     {
       redErrorMessage("Error message received\n");
     }
@@ -180,14 +180,9 @@ void *receiveMessage(void *socket)
 
     // check if the message received is a pm
     int resRegexPm = regex(messageReceive, "(pm).*");
-
+    // check if the message received is a broadcast
     int resRegexAll = regex(messageReceive, "(ALL).*");
-
-
-    regex_t regexJChannel;
-    int resRegexJChannel = regcomp(&regexJChannel, "^/jchannel [0-9]*", REG_EXTENDED);
-    resRegexJChannel = regexec(&regexJChannel, messageReceive, 0, NULL, 0);
-    regfree(&regexJChannel);
+    int resRegexJChannel = regex(messageReceive, "^\\/jchannel +([0-9]{1,2}) +([0-9]{4}) *$");
 
     if (resRegexPm == 0)
     {
@@ -202,10 +197,13 @@ void *receiveMessage(void *socket)
     }
     else if (resRegexJChannel == 0)
     {
-      char **msg = str_split(messageReceive, 1);
-      int port = atoi(msg[1]);
-      shutdown(socket, 2);
-      redMessage("\nYou left the channel \n");
+      char *msg[3];
+      getRegexGroup(msg, 3, messageReceive, "^\\/jchannel +([0-9]{1,2}) +([0-9]{4}) *$");
+      int port = atoi(msg[2]);
+      shutdown((int)(size_t)socket, 2);
+      redMessage("\nYou left your channel for channel ");
+      redMessage(msg[1]);
+      printf("\n");
       dS = socketConnection(port);
       break;
     }

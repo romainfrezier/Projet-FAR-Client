@@ -233,26 +233,33 @@ char *chooseNameFile(char *nameFile, int i)
     char *haveNumber[3];
     if (found == 0)
     {
-        // change name
-        getRegexGroup(arr, 3, nameFile, "^(.*)(\\..*)$");
-        int regexRes = regex(arr[1], "^(.*)(-[0-9]+).*$");
-        char *cpy = (char *)malloc(strlen(arr[1]));
-        strcpy(cpy, arr[1]);
-        if (regexRes == 0)
+        if (regex(nameFile, "^(.*)(\\..*)$") == 0)
         {
-            getRegexGroup(haveNumber, 3, arr[1], "^(.*)(-[0-9]+)");
-            strremove(cpy, haveNumber[2]);
+            // change name
+            getRegexGroup(arr, 3, nameFile, "^(.*)(\\..*)$");
+            int regexRes = regex(arr[1], "^(.*)(-[0-9]+).*$");
+            char *cpy = (char *)malloc(strlen(arr[1]));
+            strcpy(cpy, arr[1]);
+            if (regexRes == 0)
+            {
+                getRegexGroup(haveNumber, 3, arr[1], "^(.*)(-[0-9]+)");
+                strremove(cpy, haveNumber[2]);
+            }
+            char *number = (char *)malloc(10);
+            char *format = (char *)malloc(10);
+            strcat(format, "-");
+            sprintf(number, "%d", i);
+            strcat(format, number);
+            char *newFilename = (char *)malloc(strlen(cpy) + strlen(format) + strlen(arr[2]));
+            strcpy(newFilename, cpy);
+            strcat(newFilename, format);
+            strcat(newFilename, arr[2]);
+            return chooseNameFile(newFilename, i + 1);
         }
-        char *number = (char *)malloc(10);
-        char *format = (char *)malloc(10);
-        strcat(format, "-");
-        sprintf(number, "%d", i);
-        strcat(format, number);
-        char *newFilename = (char *)malloc(strlen(cpy) + strlen(format) + strlen(arr[2]));
-        strcpy(newFilename, cpy);
-        strcat(newFilename, format);
-        strcat(newFilename, arr[2]);
-        return chooseNameFile(newFilename, i + 1);
+        else
+        {
+            return "Strange file...";
+        }
     }
     else
     {
@@ -263,7 +270,8 @@ char *chooseNameFile(char *nameFile, int i)
 void * prepareGetFile(void *data)
 {
     getFileStruct *dataGetFile = (getFileStruct *)data;
-    char **mess = str_split(dataGetFile->cmd, 1);
+    char *mess[2];
+    getRegexGroup(mess, 2, dataGetFile->cmd, "^/dfile +([^ ]*) *$");
 
     sendSpecificMessage(dataGetFile->socketServer, mess[1]);
 
