@@ -15,6 +15,11 @@
 #include "lib/headers/colors.h"
 
 /**
+ * @brief
+ */
+int defaultPort = 4000;
+
+/**
  * @brief Main function of client program
  * @param argc number of arguments given by the user
  * @param argv arguments given by the user
@@ -23,15 +28,11 @@
 int main(int argc, char *argv[])
 {
     // args check
-    if (argc != 3)
+    if (argc != 2)
     {
-        redErrorMessage("Usage : ./exe IP port");
-    }
-    if (atoi(argv[2]) <= 1024)
-    {
-        redErrorMessage("Bad port: must be greater than 1024");
+        redErrorMessage("Usage : ./exe IP");
     }
 
-    launchClient(argv[1], atoi(argv[2]));
+    launchClient(argv[1], defaultPort);
     return 0;
 }

@@ -1,15 +1,8 @@
-# Projet-FAR-Client
+# Manual for Users
 
-Client side of the development of a messaging system with the C language
+## To launch the program
 
----
-
-<a target="_blank" href="https://github.com/romainfrz/Projet-FAR-Server">
-    <img alt="github link" src="https://img.shields.io/badge/github-server git-green?style=for-the-badge&logo=github">
-</a>
-<a target="_blank" href="https://github.com/romainfrz/Projet-FAR-Doc">
-    <img alt="github link" src="https://img.shields.io/badge/github-doc git-blue?style=for-the-badge&logo=github">
-</a>
+``` ./scriptClient.sh ip.of.the.server ```
 
 ---
 ## Command Manual
