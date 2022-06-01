@@ -1,18 +1,29 @@
 # Projet-FAR-Client
 
-Client side of the development of a messaging system with the C language
+### What is the project ?
+
+Client side of the development of a messaging system with the C language.
 
 ---
+
+### To launch the program
+
+` ./scriptClient.sh ip.of.the.server `
+
+---
+
+### Links
 
 <a target="_blank" href="https://github.com/romainfrz/Projet-FAR-Server">
     <img alt="github link" src="https://img.shields.io/badge/github-server git-green?style=for-the-badge&logo=github">
 </a>
+
 <a target="_blank" href="https://github.com/romainfrz/Projet-FAR-Doc">
     <img alt="github link" src="https://img.shields.io/badge/github-doc git-blue?style=for-the-badge&logo=github">
 </a>
 
 ---
-## Command Manual
+### Command Manual
 
 | Command    | Parameters            | Actions                                                                                                                  | Access      |
 |------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------|-------------|
